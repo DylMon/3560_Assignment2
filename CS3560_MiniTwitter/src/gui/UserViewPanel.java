@@ -1,38 +1,21 @@
 package gui;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Map;
-
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import app.GroupUser;
 import app.Observer;
 import app.SingleUser;
 import app.Subject;
 import app.User;
-import gui.ControlPanel;
 
-/**
- * User view UI.
- *
- *  - assume can only open for SingleUser
- *  - assume can only open one panel per SingleUser
- *
- * @author Dylan Monge  
- *
- */
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class UserViewPanel extends ControlPanel {
 
@@ -40,10 +23,10 @@ public class UserViewPanel extends ControlPanel {
     private GridBagConstraints constraints;
 
     private JTextField toFollowTextField;
-
     private JTextArea tweetMessageTextArea;
     private JTextArea currentFollowingTextArea;
     private JTextArea newsFeedTextArea;
+    private JTextArea userInfoTextArea; // New text area for user info
 
     private JScrollPane tweetMessageScrollPane;
     private JScrollPane currentFollowingScrollPane;
@@ -72,14 +55,14 @@ public class UserViewPanel extends ControlPanel {
     /*
      * Private methods
      */
-
     private void addComponents() {
         addComponent(frame, toFollowTextField, 0, 0, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
         addComponent(frame, followUserButton, 1, 0, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
-        addComponent(frame, currentFollowingTextArea, 0, 1, 2, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
+        addComponent(frame, currentFollowingScrollPane, 0, 1, 2, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
         addComponent(frame, tweetMessageScrollPane, 0, 2, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
         addComponent(frame, postTweetButton, 1, 2, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
         addComponent(frame, newsFeedScrollPane, 0, 3, 2, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH);
+        addComponent(frame, userInfoTextArea, 0, 4, 2, 1, GridBagConstraints.CENTER, GridBagConstraints.BOTH); // Add user info text area
     }
 
     private void initializeComponents() {
@@ -110,10 +93,13 @@ public class UserViewPanel extends ControlPanel {
         newsFeedScrollPane = new JScrollPane(newsFeedTextArea);
         newsFeedScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
+        // Initialize and format the new text area for user info
+        userInfoTextArea = new JTextArea();
+        formatTextArea(userInfoTextArea);
+        displayUserInfo();
+
         // current following and news feed lists reflect most recent state of UserViewPanel
         updateCurrentFollowingTextArea();
-
-        // news feed is updated even while UserViewPanel is closed
         updateNewsFeedTextArea();
     }
 
@@ -133,11 +119,20 @@ public class UserViewPanel extends ControlPanel {
 
         // allows UserViewPanel to be reopened after it has been closed
         frame.addWindowListener(new WindowAdapter() {
-
             public void windowClosing(WindowEvent e) {
                 openPanels.remove(((User) user).getID());
             }
         });
+    }
+
+    private void displayUserInfo() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String creationDate = sdf.format(new Date(((User) user).getCreationTime()));
+        String lastUpdateDate = sdf.format(new Date(((User) user).getLastUpdateTime()));
+
+        userInfoTextArea.setText("User ID: " + ((User) user).getID() +
+                                 "\nCreation Time: " + creationDate +
+                                 "\nLast Update Time: " + lastUpdateDate);
     }
 
     /**

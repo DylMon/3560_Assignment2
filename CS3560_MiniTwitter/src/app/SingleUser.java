@@ -72,6 +72,12 @@ public class SingleUser extends User implements Subject {
         }
 
         notifyObservers();
+        updateLastUpdateTime(); // Update last update time
+
+        // Update last update time for followers
+        for (Observer obs : followers.values()) {
+            ((User) obs).updateLastUpdateTime();
+        }
     }
 
     /**
